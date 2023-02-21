@@ -1,0 +1,20 @@
+---
+title: "Project"
+author: "Kat Pinder,"
+date: "2023-02-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(janitor)
+library(dplyr)
+library(here)
+``` 
+
+Load Dataset
+
