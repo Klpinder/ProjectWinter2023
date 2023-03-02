@@ -1,0 +1,33 @@
+---
+title: "Project"
+author: "Jacob Yousif"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Setup
+
+Libraries used:
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+Data used:
+```{r}
+exoplanets <- read_csv("data/cleaned_5250.csv")
+```
+
+Project:
+```{r}
+glimpse(exoplanets)
+anyNA(exoplanets)
+```
+```{r}
+
+```
+
