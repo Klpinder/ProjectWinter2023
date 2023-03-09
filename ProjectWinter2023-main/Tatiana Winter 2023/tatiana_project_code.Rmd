@@ -1,0 +1,103 @@
+---
+title: "Exoplanets Project - Winter 2023"
+author: "Tatiana Aguilar"
+date: "2023-03-07"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(shiny)
+library(shinydashboard)
+```
+
+```{r}
+exoplanets <- read_csv("data/cleaned_5250.csv")
+```
+
+```{r}
+glimpse(exoplanets)
+```
+
+```{r}
+exoplanets %>% 
+  ggplot(aes(x=distance, y=discovery_year)) +
+  geom_point()
+```
+
+```{r}
+ui <- fluidPage(
+    selectInput("x", "Select X Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_period", "eccentricity"), 
+              selected = "distance"),
+    selectInput("y", "Select Y Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_period", "eccentricity"), 
+              selected = "mass_multiplier"),
+    plotOutput("plot", width="500px", height="500px")
+)
+
+server <- function(input, output) {
+  output$plot <- renderPlot({
+    ggplot(data=exoplanets, aes_string(x=input$x, y=input$y, color="planet_type"))+
+      geom_point()+
+      theme_light(base_size=18)
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
+```{r}
+exoplanets %>% 
+  count(mass_wrt)
+```
+
+```{r}
+exoplanets_mass_wrt <- exoplanets %>% 
+  mutate(mass_wrt_new= ifelse(mass_wrt=="Jupiter", 1.898*10^27, 5.97*10^24))
+```
+
+```{r}
+#exoplanets_mass <- exoplanets_mass_wrt %>% 
+  #mutate(mass= )
+```
+
+```{r}
+super_earth_exoplanets <- exoplanets %>% 
+  filter(planet_type %in% c("Super Earth"))
+```
+
+```{r}
+super_earth_exoplanets %>% 
+  ggplot(aes(x=distance, y=discovery_year)) +
+  geom_point()
+```
+
+```{r}
+ui <- fluidPage(
+    selectInput("x", "Select X Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_period", "eccentricity"), 
+              selected = "distance"),
+    selectInput("y", "Select Y Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_period", "eccentricity"), 
+              selected = "mass_multiplier"),
+    plotOutput("plot", width="500px", height="500px")
+)
+
+server <- function(input, output) {
+  output$plot <- renderPlot({
+    ggplot(data=super_earth_exoplanets, aes_string(x=input$x, y=input$y, color="detection_method"))+
+      geom_point()+
+      theme_light(base_size=18)
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+

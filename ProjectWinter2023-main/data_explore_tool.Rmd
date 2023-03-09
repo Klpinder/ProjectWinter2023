@@ -1,0 +1,39 @@
+---
+title: "Data Exploration Tool"
+author: "Jacob Yousif"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load data:
+```{r}
+exoplanets <- read_csv("data/cleaned_5250.csv")
+glimpse(exoplanets)
+```
+
+Data Explore Tool:
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  radioButtons("x", "X-Axis Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_radius", "orbital_period", "eccentricity", "planet_type, detection_method")),
+  radioButtons("y", "Y-Axis Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_radius", "orbital_period", "eccentricity", "planet_type, detection_method")),
+  plotOutput("plot", width="500px", height="500px")
+)
+
+server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    ggplot(data = exoplanets, 
+           aes_string(x=input$x, y=input$y)) +
+      geom_point() + 
+      theme_light(base_size=18)
+  })
+}
+
+shinyApp(ui, server)
+```
+This app creates quick graphs showing two variables plotted against each other. We can use this to explore different trends in the data and find interesting correlations to highlight.
