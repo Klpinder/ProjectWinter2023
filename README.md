@@ -1,4 +1,4 @@
-# ## Welcome :)
+## Welcome :)
 ##### Author: Tatiana Aguilar, Jacob Yousif, and Kat Pinder
 
 
