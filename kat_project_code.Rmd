@@ -14,10 +14,73 @@ library(tidyverse)
 library(janitor)
 library(dplyr)
 library(here)
+library(naniar)
 ``` 
 
 Load Dataset
 ```{r}
 planets<-read_csv("data/cleaned_5250.csv")
+```
+
+```{r}
+names(planets)
+```
+
+```{r}
+miss_var_summary(planets)
+```
+
+```{r}
+glimpse(planets)
+```
+
+Most common detection method
+```{r}
+planets%>%
+  ggplot(aes(x=detection_method))+geom_bar()+scale_y_log10()
+```
+
+Number of discoveries each year
+```{r}
+planets%>%
+  ggplot(aes(x=discovery_year))+geom_bar()
+#spike in 2014 likely due to the Kepler Space Telescope that NASA launched in Feb 2014
+```
+
+Number of discoveries each year of different planet types
+```{r}
+planets%>%
+  ggplot(aes(x=discovery_year))+geom_bar()+facet_wrap(~planet_type)
+```
+
+Number of discoveries each year by discovery method
+```{r}
+planets%>%
+  ggplot(aes(x=discovery_year,fill=detection_method))+geom_bar()
+```
+
+2nd dataset
+```{r}
+planets2<-read_csv("data/oec.csv")
+```
+
+```{r}
+names(planets2)
+```
+
+```{r}
+miss_var_summary(planets2)
+```
+
+```{r}
+glimpse(planets2)
+```
+
+Exoplanets within Habitable Temp Range
+```{r}
+planets2%>%
+  select(PlanetIdentifier,SurfaceTempK,PeriodDays,PlanetaryMassJpt,RadiusJpt,PeriodDays,DistFromSunParsec,HostStarTempK)%>%
+  filter(SurfaceTempK>=274.15&SurfaceTempK<=374.15)
+#Temp range is between 274.15-374.15 K which is derived from the temp range that water is in a liquid state
 ```
 
