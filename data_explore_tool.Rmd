@@ -9,6 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+library(tidyverse)
+```
+
 Load data:
 ```{r}
 exoplanets <- read_csv("data/cleaned_5250.csv")
@@ -20,8 +24,8 @@ Data Explore Tool:
 library(shiny)
 
 ui <- fluidPage(
-  radioButtons("x", "X-Axis Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_radius", "orbital_period", "eccentricity", "planet_type, detection_method")),
-  radioButtons("y", "Y-Axis Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_radius", "orbital_period", "eccentricity", "planet_type, detection_method")),
+  selectInput("x", "X-Axis Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_radius", "orbital_period", "eccentricity", "planet_type", "detection_method")),
+  selectInput("y", "Y-Axis Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass_multiplier", "radius_multiplier", "orbital_radius", "orbital_period", "eccentricity", "planet_type", "detection_method")),
   plotOutput("plot", width="500px", height="500px")
 )
 
