@@ -15,19 +15,41 @@ Libraries used:
 ```{r}
 library(tidyverse)
 library(janitor)
+library(naniar)
 ```
 
-Data used:
+Load data
 ```{r}
 exoplanets <- read_csv("data/cleaned_5250.csv")
 ```
 
-Project:
+Explore data
 ```{r}
 glimpse(exoplanets)
-anyNA(exoplanets)
+miss_var_summary(exoplanets)
 ```
-```{r}
 
+Add column for mass of planets in kg
+```{r}
+exoplanets_mass <- exoplanets %>% 
+  mutate(mass_kg = case_when(mass_wrt == "Jupiter" ~ mass_multiplier * 1.898e27, #mass of Jupiter
+                             mass_wrt == "Earth" ~ mass_multiplier * 5.972e24)) #mass of Earth
+glimpse(exoplanets_mass)
+```
+
+Discovery year vs size
+```{r}
+ggplot(exoplanets_mass, aes(x=discovery_year, y=mass_kg, group = discovery_year)) +
+  geom_boxplot() +
+  scale_y_log10()
+```
+Size vs eccentricity
+```{r}
+exoplanets_mass %>% 
+  filter(eccentricity >= 0.0) %>% 
+  ggplot(aes(x=mass_kg, y=eccentricity)) +
+  geom_point() +
+  scale_x_log10()
+#why are some ecc negative?
 ```
 
