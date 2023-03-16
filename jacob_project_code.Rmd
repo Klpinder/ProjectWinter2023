@@ -22,7 +22,7 @@ library(paletteer)
 Load data
 ```{r}
 exoplanets <- read_csv("data/cleaned_5250.csv")
-planets_temps <- <-read_csv("data/oec.csv")
+planets_temps <- read_csv("data/oec.csv")
 ```
 
 Explore data
@@ -82,25 +82,30 @@ exoplanets_mass %>%
   geom_point() +
   scale_x_log10()
 ```
-```{r}
-planets_temps %>% filter(PlanetIdentifier == "Earth")
-```
 
-```{r}
-#Lib that works with shiny. Required to print data table by the 
-#install.packages("DataTables")
-```
 ```{r}
 #unreactive version:
 planets_temps %>% 
-      select("PlanetIdentifier", "PlanetaryMassJpt", "Eccentricity", "PeriodDays", "SurfaceTempK") %>% 
-      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == "Kepler-9 b") #%>% 
-  #ggplot(aes(x = PlanetIdentifier, y = PlanetaryMassJpt, group = "PlanetIdentifier")) +
-      #geom_col(position = "dodge")
+  select("PlanetIdentifier", "PlanetaryMassJpt", "Eccentricity", "PeriodDays", "SurfaceTempK") %>% 
+  filter(PlanetIdentifier == "Earth" | PlanetIdentifier == "Kepler-9 b")# %>% 
+  #ggplot(aes(x = PlanetIdentifier, y = PlanetaryMassJpt, group = PlanetIdentifier)) +
+  #    geom_col(position = "dodge")
+```
+```{r}
+return(TRUE)
 ```
 
 ```{r}
+planets_temps %>% 
+  select(PlanetIdentifier, PlanetaryMassJpt, Eccentricity, PeriodDays, SurfaceTempK) %>% 
+  filter(PlanetIdentifier == "Earth" | PlanetIdentifier == input$planet)
+  
+```
+
+
+```{r}
 library(shiny)
+planets_temps <- read_csv("data/oec.csv")
 
 ui <- fluidPage(
   title = "Compare A Planet with Earth",
@@ -112,18 +117,38 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   updateSelectInput(session, "planet", choices = planets_temps$PlanetIdentifier) #had to use this because selectInput had a large number of choices
- 
-  get_planet_data <- reactive({
-    planets_temps %>% 
-      select("PlanetIdentifier", "PlanetaryMassJpt", "Eccentricity", "PeriodDays", "SurfaceTempK") %>% 
-      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == input$planet)
-  })
   
-  output$plot <- renderPlot({
-    ggplot(data = get_planet_data, aes_string(x = PlanetIdentifier, y = PlanetaryMassJpt, group = "PlanetIdentifier")) +
+  #debug:
+  #observe({print(input$planet)}) #indicates whether selectInput is working
+  
+  get_planet_data <- reactive({ #this should work
+    planets_temps %>% 
+      select(PlanetIdentifier, PlanetaryMassJpt, Eccentricity, PeriodDays, SurfaceTempK) %>% 
+      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == input$planet)
+                      }) 
+
+  output$plot <- renderPlot({ #mass
+    ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = PlanetaryMassJpt, group = PlanetIdentifier)) +
       geom_col(position = "dodge")
   })
   
+  output$plot <- renderPlot({ #Eccentricity
+    ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = Eccentricity, group = PlanetIdentifier)) +
+      geom_col(position = "dodge")
+  })
+  
+  output$plot <- renderPlot({ #Orbital period
+    ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = PeriodDays, group = PlanetIdentifier)) +
+      geom_col(position = "dodge")
+  })
+  
+  #output$plot <- renderPlot({ #Surface temp: no worky cuz earth has na
+  #  ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = SurfaceTempK, group = PlanetIdentifier)) +
+  #    geom_col(position = "dodge")
+  #})
+  
+  
+  #Stylize plots
 }
 
 shinyApp(ui, server)
