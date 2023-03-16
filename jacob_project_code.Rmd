@@ -113,9 +113,9 @@ ui <- fluidPage(
               selected = "Earth", width = "400px"),
   
   fluidRow(
-    plotOutput("plot1", width = "300px", height = "500px"),
-    plotOutput("plot2", width = "300px", height = "500px"),
-    plotOutput("plot3", width = "300px", height = "500px")
+    column(5, plotOutput("plot1", width = "300px", height = "500px")),
+    column(5, plotOutput("plot2", width = "300px", height = "500px")),
+    column(5, plotOutput("plot3", width = "300px", height = "500px"))
   #plotOutput("plot4", width = "500px", height = "500px")
   )
 )
