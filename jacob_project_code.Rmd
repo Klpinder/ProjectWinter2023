@@ -94,9 +94,9 @@ planets_temps %>% filter(PlanetIdentifier == "Earth")
 #unreactive version:
 planets_temps %>% 
       select("PlanetIdentifier", "PlanetaryMassJpt", "Eccentricity", "PeriodDays", "SurfaceTempK") %>% 
-      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == "Kepler-9 b") %>% 
-  ggplot(aes(x = PlanetIdentifier, y = PlanetaryMassJpt, group = "PlanetIdentifier")) +
-      geom_col(position = "dodge")
+      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == "Kepler-9 b") #%>% 
+  #ggplot(aes(x = PlanetIdentifier, y = PlanetaryMassJpt, group = "PlanetIdentifier")) +
+      #geom_col(position = "dodge")
 ```
 
 ```{r}
@@ -116,12 +116,11 @@ server <- function(input, output, session) {
   get_planet_data <- reactive({
     planets_temps %>% 
       select("PlanetIdentifier", "PlanetaryMassJpt", "Eccentricity", "PeriodDays", "SurfaceTempK") %>% 
-      filter("PlanetIdentifier" == "Earth" | "PlanetIdentifier" == input$planet)
+      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == input$planet)
   })
-    
+  
   output$plot <- renderPlot({
-    data1 <- get_planet_data()
-    ggplot(data = data1, aes_string(x = "PlanetIdentifier", y = "PlanetaryMassJpt", group = "PlanetIdentifier")) +
+    ggplot(data = get_planet_data, aes_string(x = PlanetIdentifier, y = PlanetaryMassJpt, group = "PlanetIdentifier")) +
       geom_col(position = "dodge")
   })
   
