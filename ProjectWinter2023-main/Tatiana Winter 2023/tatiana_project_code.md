@@ -213,27 +213,24 @@ super_earth_exoplanets %>%
 
 
 ```r
-ui <- fluidPage(
-    selectInput("x", "Select X Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass", "radius", "orbital_period", "eccentricity"), 
+ui <- dashboardPage(skin = "yellow",
+  dashboardHeader(title = "Super Earth Types"),
+  dashboardSidebar(disable=T),
+  dashboardBody(
+  selectInput("x", "Select", choices = c("distance", "stellar_magnitude", "discovery_year", "mass", "radius", "orbital_period", "eccentricity"), 
               selected = "distance"),
-    selectInput("y", "Select Y Variable", choices = c("distance", "stellar_magnitude", "discovery_year", "mass", "radius", "orbital_period", "eccentricity"), 
+  selectInput("y", "Select", choices = c("distance", "stellar_magnitude", "discovery_year", "mass", "radius", "orbital_period", "eccentricity"),
               selected = "mass"),
-    plotOutput("plot", width="500px", height="500px")
+  plotOutput("plot", width = "500px", height = "500px"))
 )
-
-server <- function(input, output) {
+server <- function(input, output, session) {
+  session$onSessionEnded(stopApp)
   output$plot <- renderPlot({
-    ggplot(data=super_earth_exoplanets, aes_string(x=input$x, y=input$y, color="detection_method"))+
-      geom_point()+
+  ggplot(data=super_earth_exoplanets, aes_string(x = input$x, y = input$y, color="detection_method")) +
+      labs(color="Detection Method") +
+      geom_point() + 
       theme_light(base_size=18)
-  })
-  
+    })
 }
-
 shinyApp(ui, server)
 ```
-
-```{=html}
-<div style="width: 100% ; height: 400px ; text-align: center; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;" class="muted well">Shiny applications not supported in static R Markdown documents</div>
-```
-
