@@ -91,10 +91,12 @@ planets_temps %>% filter(PlanetIdentifier == "Earth")
 #install.packages("DataTables")
 ```
 ```{r}
-#test area
+#unreactive version:
 planets_temps %>% 
       select("PlanetIdentifier", "PlanetaryMassJpt", "Eccentricity", "PeriodDays", "SurfaceTempK") %>% 
-      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == "Kepler-9 b")
+      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == "Kepler-9 b") %>% 
+  ggplot(aes(x = PlanetIdentifier, y = PlanetaryMassJpt, group = "PlanetIdentifier")) +
+      geom_col(position = "dodge")
 ```
 
 ```{r}
