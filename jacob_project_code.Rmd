@@ -16,11 +16,13 @@ Libraries used:
 library(tidyverse)
 library(janitor)
 library(naniar)
+library(paletteer)
 ```
 
 Load data
 ```{r}
 exoplanets <- read_csv("data/cleaned_5250.csv")
+planets_temps <- <-read_csv("data/oec.csv")
 ```
 
 Explore data
@@ -36,20 +38,105 @@ exoplanets_mass <- exoplanets %>%
                              mass_wrt == "Earth" ~ mass_multiplier * 5.972e24)) #mass of Earth
 glimpse(exoplanets_mass)
 ```
+```{r}
+space_palette <- paletteer_d("palettetown::swampert")
+space_palette2 <- paletteer_d("palettetown::swampert", 10, direction = -1)
+space_palette_cont <- paletteer_d("palettetown::swampert", type = "continuous")
+space_palette
+space_palette2
+space_palette_cont
+```
 
 Discovery year vs size
 ```{r}
-ggplot(exoplanets_mass, aes(x=discovery_year, y=mass_kg, group = discovery_year)) +
-  geom_boxplot() +
-  scale_y_log10()
+ggplot(exoplanets_mass, aes(x=discovery_year, 
+                            y=mass_kg, 
+                            group = discovery_year, 
+                            fill = cut(discovery_year, breaks = 
+                                         c(1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023)
+                                       ))) +
+  geom_boxplot(na.rm=T) +
+  scale_y_log10() +
+  scale_fill_manual(values = space_palette) +
+  labs(title="Mass of Planets Discovered Each Year", x="Discovery Year", y="Mass (kg)", fill="Year Discovered")
 ```
+Discovery year vs distance
+```{r}
+ggplot(exoplanets_mass, aes(x=discovery_year, 
+                            y=distance, 
+                            group = discovery_year, 
+                            fill = cut(discovery_year, breaks = 
+                                         c(1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023)
+                                       ))) +
+  geom_boxplot(na.rm=T) +
+  scale_y_log10() +
+  scale_fill_manual(values = space_palette2) +
+  labs(title="Distance of Planets Discovered Each Year", x="Discovery Year", y="Distance from Earth (ly)", fill="Year Discovered")
+```
+
 Size vs eccentricity
 ```{r}
 exoplanets_mass %>% 
-  filter(eccentricity >= 0.0) %>% 
+  filter(eccentricity >= 0.0) %>% #why are some ecc negative?
   ggplot(aes(x=mass_kg, y=eccentricity)) +
   geom_point() +
   scale_x_log10()
-#why are some ecc negative?
+```
+```{r}
+planets_temps %>% filter(PlanetIdentifier == "Earth")
 ```
 
+```{r}
+#Lib that works with shiny. Required to print data table by the 
+#install.packages("DataTables")
+```
+```{r}
+#test area
+planets_temps %>% 
+      select("PlanetIdentifier", "PlanetaryMassJpt", "Eccentricity", "PeriodDays", "SurfaceTempK") %>% 
+      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == "Kepler-9 b")
+```
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  title = "Compare A Planet with Earth",
+  selectInput("planet", "Select Exoplanet...", choices = NULL, 
+              selected = "Earth", width = "400px"),
+  plotOutput("plot", width = "500px", height = "500px")
+)
+
+server <- function(input, output, session) {
+  
+  updateSelectInput(session, "planet", choices = planets_temps$PlanetIdentifier) #had to use this because selectInput had a large number of choices
+ 
+  get_planet_data <- reactive({
+    planets_temps %>% 
+      select("PlanetIdentifier", "PlanetaryMassJpt", "Eccentricity", "PeriodDays", "SurfaceTempK") %>% 
+      filter("PlanetIdentifier" == "Earth" | "PlanetIdentifier" == input$planet)
+  })
+    
+  output$plot <- renderPlot({
+    data1 <- get_planet_data()
+    ggplot(data = data1, aes_string(x = "PlanetIdentifier", y = "PlanetaryMassJpt", group = "PlanetIdentifier")) +
+      geom_col(position = "dodge")
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
+Idea: exoplanet habitability calculator
+- Select exoplanet by name?
+- Or, maybe sort list of viable exoplanets by a metric (like distance, similarity to Earth in size/day cycle/temp/year length)
+
+Categories: 
+- Size (relative to Earth)
+- Distance from Earth
+- Time it would take to reach with current tech
+- Surface temp range
+- Day length/year length
+- Eccentricity (could you make a vis of eccentricity w/ graphs?)
+- How long until planet is consumed? (based on star size/type)
