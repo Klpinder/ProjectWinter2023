@@ -111,7 +111,13 @@ ui <- fluidPage(
   title = "Compare A Planet with Earth",
   selectInput("planet", "Select Exoplanet...", choices = NULL, 
               selected = "Earth", width = "400px"),
-  plotOutput("plot", width = "500px", height = "500px")
+  
+  fluidRow(
+    plotOutput("plot1", width = "300px", height = "500px"),
+    plotOutput("plot2", width = "300px", height = "500px"),
+    plotOutput("plot3", width = "300px", height = "500px")
+  #plotOutput("plot4", width = "500px", height = "500px")
+  )
 )
 
 server <- function(input, output, session) {
@@ -127,22 +133,22 @@ server <- function(input, output, session) {
       filter(PlanetIdentifier == "Earth" | PlanetIdentifier == input$planet)
                       }) 
 
-  output$plot <- renderPlot({ #mass
+  output$plot1 <- renderPlot({ #mass
     ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = PlanetaryMassJpt, group = PlanetIdentifier)) +
       geom_col(position = "dodge")
   })
   
-  output$plot <- renderPlot({ #Eccentricity
+  output$plot2 <- renderPlot({ #Eccentricity
     ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = Eccentricity, group = PlanetIdentifier)) +
       geom_col(position = "dodge")
   })
   
-  output$plot <- renderPlot({ #Orbital period
+  output$plot3 <- renderPlot({ #Orbital period
     ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = PeriodDays, group = PlanetIdentifier)) +
       geom_col(position = "dodge")
   })
   
-  #output$plot <- renderPlot({ #Surface temp: no worky cuz earth has na
+  #output$plot4 <- renderPlot({ #Surface temp: no worky cuz earth has na
   #  ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = SurfaceTempK, group = PlanetIdentifier)) +
   #    geom_col(position = "dodge")
   #})

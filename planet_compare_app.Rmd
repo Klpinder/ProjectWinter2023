@@ -1,0 +1,68 @@
+---
+title: "Planet Compare App"
+author: "Jacob Yousif"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+App
+```{r}
+library(shiny)
+planets_temps <- read_csv("data/oec.csv")
+
+ui <- fluidPage(
+  title = "Compare A Planet with Earth",
+  selectInput("planet", "Select Exoplanet...", choices = NULL, 
+              selected = "Earth", width = "400px"),
+  
+  fluidRow(
+    plotOutput("plot1", width = "300px", height = "500px"),
+    plotOutput("plot2", width = "300px", height = "500px"),
+    plotOutput("plot3", width = "300px", height = "500px")
+  #plotOutput("plot4", width = "500px", height = "500px")
+  )
+)
+
+server <- function(input, output, session) {
+  
+  updateSelectInput(session, "planet", choices = planets_temps$PlanetIdentifier) #had to use this because selectInput had a large number of choices
+  
+  #debug:
+  #observe({print(input$planet)}) #indicates whether selectInput is working
+  
+  get_planet_data <- reactive({ #this should work
+    planets_temps %>% 
+      select(PlanetIdentifier, PlanetaryMassJpt, Eccentricity, PeriodDays, SurfaceTempK) %>% 
+      filter(PlanetIdentifier == "Earth" | PlanetIdentifier == input$planet)
+                      }) 
+
+  output$plot1 <- renderPlot({ #mass
+    ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = PlanetaryMassJpt, group = PlanetIdentifier)) +
+      geom_col(position = "dodge")
+  })
+  
+  output$plot2 <- renderPlot({ #Eccentricity
+    ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = Eccentricity, group = PlanetIdentifier)) +
+      geom_col(position = "dodge")
+  })
+  
+  output$plot3 <- renderPlot({ #Orbital period
+    ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = PeriodDays, group = PlanetIdentifier)) +
+      geom_col(position = "dodge")
+  })
+  
+  #output$plot4 <- renderPlot({ #Surface temp: no worky cuz earth has na
+  #  ggplot(data = get_planet_data(), aes(x = PlanetIdentifier, y = SurfaceTempK, group = PlanetIdentifier)) +
+  #    geom_col(position = "dodge")
+  #})
+  
+  
+  #Stylize plots
+}
+
+shinyApp(ui, server)
+```
