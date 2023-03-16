@@ -15,6 +15,7 @@ library(janitor)
 library(dplyr)
 library(here)
 library(naniar)
+library(paletteer)
 ``` 
 
 Load Dataset
@@ -34,29 +35,63 @@ miss_var_summary(planets)
 glimpse(planets)
 ```
 
+Palette
+```{r}
+my_palette <- paletteer_d("palettetown::swampert")
+```
+
 Most common detection method
 ```{r}
 planets%>%
-  ggplot(aes(x=detection_method))+geom_bar()+scale_y_log10()
+  ggplot(aes(x=detection_method,fill=detection_method))+geom_bar()+theme(axis.text.x = element_text(angle = 60, hjust=1))+scale_fill_manual(values=my_palette)
 ```
 
 Number of discoveries each year
 ```{r}
 planets%>%
   ggplot(aes(x=discovery_year))+geom_bar()
-#spike in 2014 likely due to the Kepler Space Telescope that NASA launched in Feb 2014
+#spike in 2014 and 2016, due to Kepler discoveries?
 ```
 
 Number of discoveries each year of different planet types
 ```{r}
 planets%>%
-  ggplot(aes(x=discovery_year))+geom_bar()+facet_wrap(~planet_type)
+  ggplot(aes(x=discovery_year,fill=planet_type))+geom_bar()+facet_wrap(~planet_type)+scale_fill_manual(values=my_palette)+labs(title="Number of Detected Planets per Year by Planet Type",x="Discovery Year",y="Number of Planets Discovered",fill="Planet Type")
 ```
 
 Number of discoveries each year by discovery method
 ```{r}
 planets%>%
-  ggplot(aes(x=discovery_year,fill=detection_method))+geom_bar()
+  ggplot(aes(x=discovery_year,fill=detection_method))+geom_bar()+labs(title="Number of Detected Planets per Year by Detection Method",x="Discovery Year",y="Number of Planets Discovered",fill="Detection Method")+scale_fill_manual(values=my_palette)
+```
+
+Ratio of Kepler-found planets in 2014
+
+```{r}
+planets%>%
+  filter(discovery_year=="2014")
+#875
+```
+
+```{r}
+planets%>%
+  filter(discovery_year=="2014")%>%
+  filter(grepl('Kepler',name))
+#787 so 787/875 roughly equals 90%
+```
+
+Ratio of Kepler-found planets in 2016
+```{r}
+planets%>%
+  filter(discovery_year=="2016")
+#1517
+```
+
+```{r}
+planets%>%
+  filter(discovery_year=="2016")%>%
+  filter(grepl('Kepler',name))
+#1283 so 1283/1517 is roughly 85%
 ```
 
 2nd dataset
@@ -80,7 +115,10 @@ Exoplanets within Habitable Temp Range
 ```{r}
 planets2%>%
   select(PlanetIdentifier,SurfaceTempK,PeriodDays,PlanetaryMassJpt,RadiusJpt,PeriodDays,DistFromSunParsec,HostStarTempK)%>%
-  filter(SurfaceTempK>=274.15&SurfaceTempK<=374.15)
-#Temp range is between 274.15-374.15 K which is derived from the temp range that water is in a liquid state
+  filter(SurfaceTempK>=274.15&SurfaceTempK<=374.15)%>%
+#Temp range is between 274.15-374.15 K which is derived from the temp range that water is in a liquid state, reveals 59 planets
+  filter(PlanetaryMassJpt<=.005&PlanetaryMassJpt>=.001)
+#Earth's planetary mass relative to Jupiter(PlanetaryMassJpt) is 0.003
 ```
+
 
